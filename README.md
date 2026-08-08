@@ -170,6 +170,36 @@ Run from the repository root:
 
 ---
 
+## Deployment (Render — free, single URL)
+
+The repo includes a [`render.yaml`](render.yaml) Blueprint. One free Render **web service**
+serves the API **and** the built frontend from the same origin (so there's no CORS to
+configure and no second host to manage).
+
+1. Push this repo to GitHub.
+2. On [render.com](https://render.com): **New +** → **Blueprint** → connect the repo. Render
+   reads `render.yaml`, provisions the service, and generates a `JWT_SECRET` automatically.
+3. Wait for the build. Your app is live at `https://<service-name>.onrender.com`
+   (API under `/api`, Swagger at `/api/docs`).
+
+How it works: the build compiles the client and copies `client/dist` into `server/public`;
+in production Express serves those static files with an SPA fallback, and all API routes are
+namespaced under `/api`. On boot it runs `prisma migrate deploy` then re-seeds.
+
+**Data caveat:** the free plan's filesystem is ephemeral, so the SQLite database resets to the
+seeded state on every deploy/restart. That's intentional for a demo (seeded accounts always
+work). For durable data, attach a Render Postgres instance and change the Prisma datasource
+`provider` to `"postgresql"`.
+
+To run the production build locally:
+```bash
+npm run render-build
+NODE_ENV=production JWT_SECRET=dev DATABASE_URL="file:./prod.db" PORT=4100 npm run render-start
+# open http://localhost:4100
+```
+
+---
+
 ## Design Decisions
 
 - **SQLite over PostgreSQL.** Zero-setup clean-run for reviewers — no Docker, no DB server.

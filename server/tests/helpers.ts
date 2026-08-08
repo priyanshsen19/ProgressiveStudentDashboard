@@ -39,7 +39,7 @@ export async function createUser(opts: {
 // Logs in via the API and returns a Bearer token.
 export async function login(email: string, password = PASSWORD): Promise<string> {
   const res = await request(app)
-    .post("/auth/login")
+    .post("/api/auth/login")
     .send({ email, password })
     .expect(200);
   return res.body.token as string;

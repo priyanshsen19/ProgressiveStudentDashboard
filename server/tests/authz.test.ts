@@ -5,15 +5,15 @@ describe("Authorization", () => {
   beforeEach(resetDb);
 
   it("rejects unauthenticated access to protected routes with 401", async () => {
-    await request(app).get("/dashboard").expect(401);
-    await request(app).get("/courses").expect(401);
+    await request(app).get("/api/dashboard").expect(401);
+    await request(app).get("/api/courses").expect(401);
   });
 
   it("forbids a mentor from student-only endpoints with 403", async () => {
     await createUser({ email: "m@example.com", role: "MENTOR" });
     const token = await login("m@example.com");
     await request(app)
-      .get("/dashboard")
+      .get("/api/dashboard")
       .set("Authorization", `Bearer ${token}`)
       .expect(403);
   });
@@ -26,16 +26,16 @@ describe("Authorization", () => {
 
     const otherToken = await login("other@example.com");
     await request(app)
-      .get(`/courses/${course.id}`)
+      .get(`/api/courses/${course.id}`)
       .set("Authorization", `Bearer ${otherToken}`)
       .expect(403);
     // ...and cannot read a lesson inside it, nor post progress to it.
     await request(app)
-      .get(`/lessons/${lessons[0].id}`)
+      .get(`/api/lessons/${lessons[0].id}`)
       .set("Authorization", `Bearer ${otherToken}`)
       .expect(403);
     await request(app)
-      .post(`/progress/lessons/${lessons[0].id}`)
+      .post(`/api/progress/lessons/${lessons[0].id}`)
       .set("Authorization", `Bearer ${otherToken}`)
       .send({ completed: true })
       .expect(403);
@@ -43,7 +43,7 @@ describe("Authorization", () => {
 
   it("rejects an invalid token with 401", async () => {
     await request(app)
-      .get("/dashboard")
+      .get("/api/dashboard")
       .set("Authorization", "Bearer not-a-real-token")
       .expect(401);
   });

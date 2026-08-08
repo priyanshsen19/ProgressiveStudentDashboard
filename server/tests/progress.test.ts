@@ -15,7 +15,7 @@ describe("Progress", () => {
   it("marks a lesson complete and records timeSpent", async () => {
     const { lessons, token } = await setup();
     const res = await request(app)
-      .post(`/progress/lessons/${lessons[0].id}`)
+      .post(`/api/progress/lessons/${lessons[0].id}`)
       .set("Authorization", `Bearer ${token}`)
       .send({ completed: true, timeSpent: 35 })
       .expect(200);
@@ -25,7 +25,7 @@ describe("Progress", () => {
 
   it("treats timeSpent as cumulative/absolute (write 35 -> stored 35, not additive)", async () => {
     const { lessons, token } = await setup();
-    const url = `/progress/lessons/${lessons[0].id}`;
+    const url = `/api/progress/lessons/${lessons[0].id}`;
     await request(app).post(url).set("Authorization", `Bearer ${token}`).send({ timeSpent: 20 }).expect(200);
     const res = await request(app)
       .post(url)
@@ -37,7 +37,7 @@ describe("Progress", () => {
 
   it("is idempotent: repeating an identical request yields identical state and one activity", async () => {
     const { student, lessons, token } = await setup();
-    const url = `/progress/lessons/${lessons[0].id}`;
+    const url = `/api/progress/lessons/${lessons[0].id}`;
     const body = { completed: true, timeSpent: 35 };
 
     await request(app).post(url).set("Authorization", `Bearer ${token}`).send(body).expect(200);
@@ -56,7 +56,7 @@ describe("Progress", () => {
     const { student, lessons, token } = await setup();
     for (const l of lessons) {
       await request(app)
-        .post(`/progress/lessons/${l.id}`)
+        .post(`/api/progress/lessons/${l.id}`)
         .set("Authorization", `Bearer ${token}`)
         .send({ completed: true, timeSpent: 30 })
         .expect(200);

@@ -10,7 +10,12 @@
     "dev": "concurrently -n server,client -c blue,magenta \"PORT=4000 npm --prefix server run dev\" \"npm --prefix client run dev\"",
     "test": "npm --prefix server test",
     "typecheck": "npm --prefix server run typecheck && npm --prefix client run typecheck",
-    "build": "npm --prefix client run build"
+    "build": "npm --prefix client run build",
+    "render-build": "npm run install:all && npm --prefix server run db:generate && npm --prefix client run build && npm --prefix server run build && rm -rf server/public && cp -r client/dist server/public",
+    "render-start": "npm --prefix server run start:prod"
+  },
+  "engines": {
+    "node": ">=20"
   },
   "devDependencies": {
     "concurrently": "^9.1.0"

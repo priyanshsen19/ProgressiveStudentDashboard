@@ -1,0 +1,28 @@
+# Render Blueprint — one free web service that serves both the API and the built
+# frontend from a single origin (no CORS). Deploy via https://render.com → "New +" →
+# "Blueprint" → connect this repo.
+#
+# Data note: the free plan has an ephemeral filesystem, so the SQLite database is
+# re-created and re-seeded on every deploy/restart. That is intentional for a demo — the
+# seeded accounts are always present. For durable data, attach a Render Postgres instance
+# and switch the Prisma datasource `provider` to "postgresql".
+services:
+  - type: web
+    name: progressive-student-dashboard
+    runtime: node
+    plan: free
+    buildCommand: npm run render-build
+    startCommand: npm run render-start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true # Render generates a strong secret
+      - key: DATABASE_URL
+        value: file:./prod.db
+      # Same-origin deployment: the frontend calls /api on its own host, so no CORS
+      # origin needs allow-listing and VITE_API_URL is left unset (defaults to /api).

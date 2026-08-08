@@ -13,8 +13,12 @@ client/.env
 server/prisma/*.db
 server/prisma/*.db-journal
 server/prisma/dev.db
+server/prisma/prod.db
 server/prisma/test.db
 server/prisma/test-*.db
+
+# Production build artifact: client build copied into the server for single-origin serving
+server/public/
 
 # Logs
 *.log

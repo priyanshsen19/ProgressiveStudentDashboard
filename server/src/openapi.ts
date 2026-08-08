@@ -8,7 +8,7 @@ export const openapiSpec = {
     description:
       "Tracks student progress across courses. JWT Bearer auth; student-scoped data isolation.",
   },
-  servers: [{ url: "/", description: "Same origin" }],
+  servers: [{ url: "/api", description: "API base path" }],
   components: {
     securitySchemes: {
       bearerAuth: { type: "http", scheme: "bearer", bearerFormat: "JWT" },

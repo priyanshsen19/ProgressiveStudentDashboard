@@ -12,10 +12,11 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
     proxy: {
+      // The API is namespaced under /api on the backend, so forward the path as-is
+      // (no rewrite). Browser calls /api/... -> http://localhost:4000/api/...
       "/api": {
         target: "http://localhost:4000",
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ""),
       },
     },
   },

@@ -22,7 +22,7 @@ describe("Dashboard aggregation", () => {
 
     const token = await login("s@example.com");
     const res = await request(app)
-      .get("/dashboard")
+      .get("/api/dashboard")
       .set("Authorization", `Bearer ${token}`)
       .expect(200);
 
@@ -57,7 +57,7 @@ describe("Dashboard aggregation", () => {
       });
     }
     const token = await login("s2@example.com");
-    const res = await request(app).get("/dashboard").set("Authorization", `Bearer ${token}`).expect(200);
+    const res = await request(app).get("/api/dashboard").set("Authorization", `Bearer ${token}`).expect(200);
     expect(res.body.overview.overallProgress).toBe(25);
   });
 });
