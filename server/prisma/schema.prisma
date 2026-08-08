@@ -1,0 +1,129 @@
+// Progressive Student Dashboard — data model
+// DB: SQLite (dev-friendly, zero setup). Swap `provider` to "postgresql" and update
+// DATABASE_URL to move to Postgres — no model changes required.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// NOTE: SQLite (via Prisma) does not support native enums or Json columns. Role and
+// ActivityType are stored as strings; the allowed values live in src/domain.ts.
+
+model User {
+  id           String @id @default(cuid())
+  name         String
+  email        String @unique
+  passwordHash String
+  role         String @default("STUDENT") // "STUDENT" | "MENTOR"
+
+  // Mentor <-> students self-relation (named to avoid Prisma ambiguity).
+  // A student may reference one mentor; a mentor may have many students.
+  mentorId String?
+  mentor   User?   @relation("MentorStudents", fields: [mentorId], references: [id])
+  students User[]  @relation("MentorStudents")
+
+  enrollments     Enrollment[]
+  progress        LessonProgress[]
+  activities      ActivityEvent[]
+  recommendations Recommendation[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([mentorId])
+}
+
+model Course {
+  id          String @id @default(cuid())
+  title       String
+  description String
+
+  lessons     Lesson[]
+  enrollments Enrollment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Lesson {
+  id          String @id @default(cuid())
+  courseId    String
+  title       String
+  description String
+  durationMin Int
+  order       Int
+
+  course   Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  progress LessonProgress[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([courseId])
+}
+
+model Enrollment {
+  id         String   @id @default(cuid())
+  studentId  String
+  courseId   String
+  enrolledAt DateTime @default(now())
+
+  student User   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course  Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, courseId])
+  @@index([studentId])
+}
+
+model LessonProgress {
+  id          String    @id @default(cuid())
+  studentId   String
+  lessonId    String
+  completed   Boolean   @default(false)
+  // Cumulative total minutes the student has spent on this lesson (source of truth for time).
+  timeSpent   Int       @default(0)
+  completedAt DateTime?
+  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime  @default(now())
+
+  student User   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  lesson  Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, lessonId])
+  @@index([studentId])
+}
+
+model ActivityEvent {
+  id        String @id @default(cuid())
+  studentId String
+  type      String // ActivityType value (see src/domain.ts)
+  // Optional JSON payload (e.g. lessonId/courseId), serialized as a JSON string.
+  metadata  String?
+  createdAt DateTime @default(now())
+
+  student User @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId, createdAt])
+}
+
+model Recommendation {
+  id          String  @id @default(cuid())
+  studentId   String
+  // Stable key so identical recommendations are not duplicated across regenerations.
+  key         String
+  title       String
+  description String
+  priority    Int     @default(0)
+
+  student User @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([studentId, key])
+  @@index([studentId])
+}

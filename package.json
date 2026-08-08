@@ -1,0 +1,18 @@
+{
+  "name": "progressive-student-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Full-stack app tracking student progress across courses with analytics dashboards.",
+  "scripts": {
+    "install:all": "npm --prefix server install && npm --prefix client install",
+    "db:migrate": "npm --prefix server run db:migrate",
+    "db:seed": "npm --prefix server run db:seed",
+    "dev": "concurrently -n server,client -c blue,magenta \"PORT=4000 npm --prefix server run dev\" \"npm --prefix client run dev\"",
+    "test": "npm --prefix server test",
+    "typecheck": "npm --prefix server run typecheck && npm --prefix client run typecheck",
+    "build": "npm --prefix client run build"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}
