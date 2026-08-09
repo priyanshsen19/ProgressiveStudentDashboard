@@ -11,7 +11,7 @@
     "test": "npm --prefix server test",
     "typecheck": "npm --prefix server run typecheck && npm --prefix client run typecheck",
     "build": "npm --prefix client run build",
-    "render-build": "sh -c 'set -e; cd server && npm ci && npm run db:generate && npm run build && cd ../client && npm ci && npm run build && cd .. && rm -rf server/public && cp -r client/dist server/public'",
+    "render-build": "sh -c 'set -e; cd server && npm ci --include=dev && npm run db:generate && npm run build && cd ../client && npm ci --include=dev && npm run build && cd .. && rm -rf server/public && cp -r client/dist server/public'",
     "render-start": "npm --prefix server run start:prod"
   },
   "engines": {
